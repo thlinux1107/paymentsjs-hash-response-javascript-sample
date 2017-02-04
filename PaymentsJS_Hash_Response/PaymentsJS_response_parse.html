@@ -1,7 +1,16 @@
 <!DOCTYPE HTML>
+<!–– 
+Created: 02/23/2016
+Author: Thomas Hagan
+	Integration Consultant, Product Integration
+
+Intended for educational use only, not for production.
+Any questions, please feel free to email us at sdksupport@sage.com
+––>
 	<head>
         <title>JavaScript Sample Response Hash Comparison</title>
 		
+		<!–– Include Script References ––>
 		<script type="text/javascript" src="/PaymentsJS_Hash_Response/Crypto_JS/rollups/hmac-sha512.js"></script>
 		<script type="text/javascript" src="/PaymentsJS_Hash_Response/Crypto_JS/components/enc-base64-min.js"></script>
 		<script type="text/javascript" src="shared.js"></script>
@@ -10,39 +19,67 @@
 	<body>
 		<p>Deserialize Response String</p>
 		<script type="text/javascript">
+			
+			//TH - This is a response string from a test transaction I ran using my test account.
+			//Feel free to replace it with a string from your attempted transaction. Keep in mind you will
+			//need to change the clientSecret on the shared.js page as well.
 			var ccresponsestring = '{"Response":{"status":"Approved","reference":"E24HGii9P0","message":"APPROVED 000007                 ","code":"000007","cvvResult":"P","avsResult":"Y","riskCode":"00","networkId":"10","isPurchaseCard":false,"vaultResponse":{"status":1,"data":"467a095ce1ca4d77ae0c7a178d7d5e1f"},"orderNumber":"Invoice342","transactionId":"YTlkOGMxZDc2MzA4N2QxNTQ1NzEyMWQ3ZjY2MDk2NWY","timestamp":"2017-02-04T16:43:43.4340787-05:00"},"Hash":"Lg90Cv0QBaX543HtEqugQIxgOXHU46KxbUkS4hcGPEfs+IKEL85qCgnW39B/WDrvCUvzA8Gy44cHiZOZROIe8g=="}';
 
+			//TH - Display the raw response to see what is being parsed.
 			document.write("Raw Response:");
 			document.write ("<br/>");
 			document.write(ccresponsestring);
 			document.write ("<br/>");
 			document.write ("<br/>");
 			
+			//TH - Parse the entire JSON response.
 			var obj = JSON.parse(ccresponsestring);
+			
+			//TH - Since there is nested JSON within the "Response" segment you will need to
+			//stringify the "Response" prior to displaying it or hashing it.
 			var respstr = JSON.stringify(obj.Response);
+			
+			//TH - Assign the parsed "Hash" to a variable.
 			var hashstr = obj.Hash;
+			
+			//TH - You will need the 'clientSecret' in order to hash the "Response" segment.
+			//You should not display the clientSecret on a web page. It is a shared key between you
+			//and Sage.
 			var clientSecret = shared.clientSecret;
 			
+			//TH - Display the parsed "Response" segment.
 			document.write("Parsed Response Segment:");
 			document.write ("<br/>");
 			document.write(respstr);
 			document.write ("<br/>");
 			document.write ("<br/>");
 			
+			//TH - Display the parsed "Hash" segment.
 			document.write("Parsed Hash Segment:");
 			document.write ("<br/>");
 			document.write(hashstr);
 			document.write ("<br/>");
 			document.write ("<br/>");
 			
+			//TH - Hash the "Response" segment using HmacSHA512 with the shared key which
+			//is the clientSecret.
 			var hashstr2 = CryptoJS.HmacSHA512(respstr, clientSecret);
+			
+			//TH - Base64 encode the hashed "Response".
 			var b64hashstr2 = CryptoJS.enc.Base64.stringify(hashstr2);
 			
+			//TH - Display the computed hash segment to compare it to the original "Hash".
 			document.write("Computed Hash Segment:");
 			document.write ("<br/>");
 			document.write(b64hashstr2);
 			document.write ("<br/>");
 			document.write ("<br/>");
+			
+			//TH - When processing with PaymentsJS you will determine if the two hashes are the
+			//same. If they are not equal you should not accept the transaction and perform a
+			//void.
+			
+			//TH - If you have any questions please contact us at sdksupport@sage.com
 			
 			
 		</script>
